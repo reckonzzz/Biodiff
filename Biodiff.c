@@ -568,6 +568,7 @@ bool append_node(TreeNode *temp, char c)
     if (ptr) return false;
     else
     {
+        temp->flag = false;
         temp->children[c - ' '] = create_node(c, false);
         return true;
     }
@@ -599,7 +600,7 @@ bool add_word(TreeNode *root, char *name)
 }
 
 
-//在字典树中查找单词是否存在（包含）
+//在字典树中查找单词是否存在
 bool search_word(TreeNode *root, char *name)
 {
     TreeNode *ptr = root;
@@ -607,12 +608,11 @@ bool search_word(TreeNode *root, char *name)
     int i = 0;
     for (i = 0; i < len; ++i)
     {
-        if (ptr->flag) break;//找到了单词最后说明这个单词包含字典树中的单词
         if (!ptr) return false;//直到字典树的单词结束没有找到相互包含的单词
         ptr = ptr->children[name[i] - ' '];
     }
-    //这一版本中，只要部分重合即可
-    return true;
+    if (ptr && ptr->flag) return true;
+    else return false;
 }
 
 
