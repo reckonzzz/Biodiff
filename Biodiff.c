@@ -51,6 +51,7 @@ Author:
 #include<string.h>
 #include<ctype.h>
 #include <sys/stat.h> 
+#include <time.h>
 
 
 #define NLINE_MAX 200
@@ -187,8 +188,11 @@ void name_overlap(DataNode *data_A, DataNode *data_B, TreeNode *root_A, TreeNode
 
 int main(int argc, char **argv)
 {
+    clock_t begin, finish;//程序计时
+    begin = clock();
     char file_path[2][NLINE_MAX], file_column[2][NLINE_MAX], option, working_path[NLINE_MAX];
-    int file_col[2][2];
+    int file_col[2][2];//用来存储输入的范围
+    double time_cost;//用来记录程序运行时间
     option = get_option(argc, argv, file_column, file_path);//获得输入的参数
     if (option != '0')
     {
@@ -220,12 +224,17 @@ int main(int argc, char **argv)
         root_B = create_tree(data_B, read_num_B);
         //判断重叠数据并输出
         name_overlap(data_A, data_B, root_A, root_B, read_num_A, read_num_B);
+        free(root_A);
+        free(root_B);
     }
     printf("------------------Write over------------------\n");
     printf("The results are in %s/result\n", working_path);
     //释放内存
     free(data_A);
     free(data_B);
+    finish = clock();
+    time_cost = (double)((finish-begin)/CLOCKS_PER_SEC);
+    printf("Program time: %f s.\n", time_cost);
     return 0;
 }
 
@@ -234,8 +243,8 @@ int main(int argc, char **argv)
 void result_mkdir()
 {
     int is_exist;
-    is_exist = access("./result", 0);
-    if (is_exist == -1)
+    is_exist = access("./result", 0);//判断文件夹是否已经存在
+    if (is_exist == -1)//如果不存在则新建文件夹
     {
         mkdir("./result", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
