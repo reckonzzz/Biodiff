@@ -246,7 +246,7 @@ void result_mkdir()
     is_exist = access("./result", 0);//判断文件夹是否已经存在
     if (is_exist == -1)//如果不存在则新建文件夹
     {
-        mkdir("./result", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        mkdir("./result", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);// if run in Windows, using <mkdir("./result");> instead of this line
     }
     else return;
 }
