@@ -233,7 +233,7 @@ int main(int argc, char **argv)
     free(data_A);
     free(data_B);
     finish = clock();
-    time_cost = (double)((finish-begin)/CLOCKS_PER_SEC);
+    time_cost = ((double)(finish-begin)/CLOCKS_PER_SEC);
     printf("Program time: %f s.\n", time_cost);
     return 0;
 }
