@@ -40,7 +40,7 @@ Reference:
         -b specify the criteria of to-file(following by the criteria)
         -h get the help of this program
 Author:
-    张治卓 517111910078
+    Zhang Zhizhuo
 */
 
 
