@@ -40,7 +40,7 @@ Reference:
         -b specify the criteria of to-file(following by the criteria)
         -h get the help of this program
 Author:
-    Zhang Zhizhuo
+    张治卓 517111910078
 */
 
 
@@ -50,6 +50,7 @@ Author:
 #include<stdbool.h>
 #include<string.h>
 #include<ctype.h>
+#include <sys/stat.h> 
 
 
 #define NLINE_MAX 200
@@ -134,6 +135,8 @@ typedef struct TreeNode
 }TreeNode;
 
 
+//创建一个输出结果文件夹存储结果，如果文件夹已存在则不新建文件夹
+void result_mkdir();
 /*--------------------对原始数据进行初步处理--------------------*/
 
 //获得选项以及两个输入文件的区间，同时对异常输入进行提示
@@ -184,7 +187,7 @@ void name_overlap(DataNode *data_A, DataNode *data_B, TreeNode *root_A, TreeNode
 
 int main(int argc, char **argv)
 {
-    char file_path[2][NLINE_MAX], file_column[2][NLINE_MAX], option;
+    char file_path[2][NLINE_MAX], file_column[2][NLINE_MAX], option, working_path[NLINE_MAX];
     int file_col[2][2];
     option = get_option(argc, argv, file_column, file_path);//获得输入的参数
     if (option != '0')
@@ -193,6 +196,8 @@ int main(int argc, char **argv)
             return 0;
     }
     else return 0;//如果option为‘0’说明发生错误退出程序
+    result_mkdir();//如果输出文件夹不存在，则创建输出文件夹
+    getcwd(working_path, sizeof(working_path));//读取当前工作路径
 
     DataNode *data_A = NULL, *data_B = NULL;//存储两个数据集的结构体数组
     int read_num_A, read_num_B;
@@ -217,10 +222,24 @@ int main(int argc, char **argv)
         name_overlap(data_A, data_B, root_A, root_B, read_num_A, read_num_B);
     }
     printf("------------------Write over------------------\n");
+    printf("The results are in %s/result\n", working_path);
     //释放内存
     free(data_A);
     free(data_B);
     return 0;
+}
+
+
+//创建一个输出结果文件夹存储结果，如果文件夹已存在则不新建文件夹
+void result_mkdir()
+{
+    int is_exist;
+    is_exist = access("./result", 0);
+    if (is_exist == -1)
+    {
+        mkdir("./result", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
+    else return;
 }
 
 
@@ -479,10 +498,10 @@ DataNode *isoverlap_c(DataNode *data_A, DataNode *data_B, int num_A, int num_B)
 void region_overlap(DataNode *data_A, DataNode *data_B, int num_A, int num_B)
 {
     FILE *AB_A, *AB_B, *A_B, *B_A;
-    AB_A = fopen("A&B_A.gtf", "w");
-    AB_B = fopen("A&B_B.gtf", "w");
-    A_B = fopen("A-B.gtf", "w");
-    B_A = fopen("B-A.gtf", "w");
+    AB_A = fopen("./result/A&B_A.gtf", "w");
+    AB_B = fopen("./result/A&B_B.gtf", "w");
+    A_B = fopen("./result/A-B.gtf", "w");
+    B_A = fopen("./result/B-A.gtf", "w");
     //进行两次标记保证每一个重叠的数据都被标记
     isoverlap_c(data_A, data_B, num_A, num_B);
     isoverlap_c(data_B, data_A, num_B, num_A);
@@ -568,7 +587,6 @@ bool append_node(TreeNode *temp, char c)
     if (ptr) return false;
     else
     {
-        temp->flag = false;
         temp->children[c - ' '] = create_node(c, false);
         return true;
     }
@@ -600,22 +618,6 @@ bool add_word(TreeNode *root, char *name)
 }
 
 
-//在字典树中查找单词是否存在
-bool search_word(TreeNode *root, char *name)
-{
-    TreeNode *ptr = root;
-    int len = strlen(name);
-    int i = 0;
-    for (i = 0; i < len; ++i)
-    {
-        if (!ptr) return false;//直到字典树的单词结束没有找到相互包含的单词
-        ptr = ptr->children[name[i] - ' '];
-    }
-    if (ptr && ptr->flag) return true;
-    else return false;
-}
-
-
 //创建数据集的字典树
 TreeNode *create_tree(DataNode *data, int read_num)
 {
@@ -628,6 +630,27 @@ TreeNode *create_tree(DataNode *data, int read_num)
         ++index;
     }
     return root;
+}
+
+
+//在字典树中查找名字是否存在(包含关系)
+bool search_word(TreeNode *root, char *name)
+{
+    TreeNode *ptr = root;
+    char *p = name;
+    int i = 0;
+    while (*p != '\0')
+    {
+        if (ptr->children[*p - ' '] != NULL)//判断是否可以继续查找
+        {
+            ptr = ptr->children[*p - ' '];
+            ++p;
+        }
+        else break;//当名字查找到字典树无法继续则退出循环
+    }
+    //符合包含关系的第一种情况为名字全部查找完毕，即名字属于字典树前缀；第二种情况是字典树查找完毕，即字典树内包含名字的前缀
+    if (*p == '\0' || ptr->flag) return true;
+    else return false;
 }
 
 
@@ -651,10 +674,10 @@ void name_oversearch(TreeNode *root, DataNode *data, int read_num, FILE *AB_A, F
 void name_overlap(DataNode *data_A, DataNode *data_B, TreeNode *root_A, TreeNode *root_B, int read_num_A, int read_num_B)
 {
     FILE *AB_A, *AB_B, *A_B, *B_A;
-    AB_A = fopen("A&B_A.gtf", "w");
-    AB_B = fopen("A&B_B.gtf", "w");
-    A_B = fopen("A-B.gtf", "w");
-    B_A = fopen("B-A.gtf", "w");
+    AB_A = fopen("./result/A&B_A.gtf", "w");
+    AB_B = fopen("./result/A&B_B.gtf", "w");
+    A_B = fopen("./result/A-B.gtf", "w");
+    B_A = fopen("./result/B-A.gtf", "w");
     printf("Searching\n");
     //对两个数据集分别进行字典树全查找
     name_oversearch(root_A, data_B, read_num_B, AB_B, B_A);
