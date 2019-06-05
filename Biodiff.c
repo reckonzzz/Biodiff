@@ -479,10 +479,10 @@ DataNode *isoverlap_c(DataNode *data_A, DataNode *data_B, int num_A, int num_B)
 void region_overlap(DataNode *data_A, DataNode *data_B, int num_A, int num_B)
 {
     FILE *AB_A, *AB_B, *A_B, *B_A;
-    AB_A = fopen("./result/A&B_A.gtf", "w");
-    AB_B = fopen("./result/A&B_B.gtf", "w");
-    A_B = fopen("./result/A-B.gtf", "w");
-    B_A = fopen("./result/B-A.gtf", "w");
+    AB_A = fopen("A&B_A.gtf", "w");
+    AB_B = fopen("A&B_B.gtf", "w");
+    A_B = fopen("A-B.gtf", "w");
+    B_A = fopen("B-A.gtf", "w");
     //进行两次标记保证每一个重叠的数据都被标记
     isoverlap_c(data_A, data_B, num_A, num_B);
     isoverlap_c(data_B, data_A, num_B, num_A);
@@ -651,10 +651,10 @@ void name_oversearch(TreeNode *root, DataNode *data, int read_num, FILE *AB_A, F
 void name_overlap(DataNode *data_A, DataNode *data_B, TreeNode *root_A, TreeNode *root_B, int read_num_A, int read_num_B)
 {
     FILE *AB_A, *AB_B, *A_B, *B_A;
-    AB_A = fopen("./result/A&B_A.gtf", "w");
-    AB_B = fopen("./result/A&B_B.gtf", "w");
-    A_B = fopen("./result/A-B.gtf", "w");
-    B_A = fopen("./result/B-A.gtf", "w");
+    AB_A = fopen("A&B_A.gtf", "w");
+    AB_B = fopen("A&B_B.gtf", "w");
+    A_B = fopen("A-B.gtf", "w");
+    B_A = fopen("B-A.gtf", "w");
     printf("Searching\n");
     //对两个数据集分别进行字典树全查找
     name_oversearch(root_A, data_B, read_num_B, AB_B, B_A);
@@ -662,4 +662,3 @@ void name_overlap(DataNode *data_A, DataNode *data_B, TreeNode *root_A, TreeNode
     printf("------------------Search over-----------------\n");
 }
 
-//git test for branch
