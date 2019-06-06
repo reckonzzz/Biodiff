@@ -395,8 +395,14 @@ int get_line_num(FILE *fp)
         ++line_num;
         fgets(temp, NLINE_MAX, fp);//用来将位置指针指向下一行
     }
+    if (line_num == 1)
+    {
+        printf("WARNING: You have provided a file with no data in it!\n");
+        exit(1);
+    }
+    
     rewind(fp);//将位置指针重新设到开头
-    return line_num;
+    return line_num-1;
 }
 
 
@@ -407,6 +413,7 @@ int read_data(FILE *fp, DataNode *file_data, int file_col[2])
     char temp_data[NLINE_MAX];//作为临时的数据存储变量
     while (feof(fp) == 0)
     {
+        strcpy(temp_data, "");
         fgets(temp_data, NLINE_MAX, fp);//先将数据存在临时变量中，用来排除空行
         if (strlen(temp_data) <= 2) continue;//排除空行
         strcpy((file_data+index)->data, temp_data);//排除空行后将数据写入结构体数组
