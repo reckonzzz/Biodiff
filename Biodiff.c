@@ -395,6 +395,12 @@ int get_line_num(FILE *fp)
         ++line_num;
         fgets(temp, NLINE_MAX, fp);//用来将位置指针指向下一行
     }
+    if (line_num == 1)
+    {
+        printf("WARNING: You have provided a file with no data in it!\n");
+        exit(1);
+    }
+    
     rewind(fp);//将位置指针重新设到开头
     return line_num;
 }
