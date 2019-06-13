@@ -152,6 +152,8 @@ int get_line_num(FILE *fp);
 int read_data(FILE *fp, DataNode *file_data, int file_col[2]);
 //打开文件并返回是否存在
 FILE *open_file(char *file_path);
+//处理原始数据
+DataNode *compose_data(char *file_path, int *file_col, int *read_num);
 
 /*--------------------快排和判断处理-c的区域重叠--------------------*/
 
@@ -163,8 +165,6 @@ DataNode *isoverlap_c(DataNode *data_A, DataNode *data_B, int num_A, int num_B);
 void region_overlap(DataNode *data_A, DataNode *data_B, int num_A, int num_B);
 //对标记后的数据依据是否重叠进行输出
 void cprint(DataNode *data, int read_num, FILE *AB, FILE *A_B);
-//处理原始数据
-DataNode *compose_data(char *file_path, int *file_col, int *read_num);
 //对数据依据端点进行排序
 DataNode *sort_data(DataNode *data, int read_num, char *file_path);
 
