@@ -152,6 +152,8 @@ int get_line_num(FILE *fp);
 int read_data(FILE *fp, DataNode *file_data, int file_col[2]);
 //打开文件并返回是否存在
 FILE *open_file(char *file_path);
+//处理原始数据
+DataNode *compose_data(char *file_path, int *file_col, int *read_num);
 
 /*--------------------快排和判断处理-c的区域重叠--------------------*/
 
@@ -163,8 +165,6 @@ DataNode *isoverlap_c(DataNode *data_A, DataNode *data_B, int num_A, int num_B);
 void region_overlap(DataNode *data_A, DataNode *data_B, int num_A, int num_B);
 //对标记后的数据依据是否重叠进行输出
 void cprint(DataNode *data, int read_num, FILE *AB, FILE *A_B);
-//处理原始数据
-DataNode *compose_data(char *file_path, int *file_col, int *read_num);
 //对数据依据端点进行排序
 DataNode *sort_data(DataNode *data, int read_num, char *file_path);
 
@@ -246,7 +246,7 @@ void result_mkdir()
     is_exist = access("./result", 0);//判断文件夹是否已经存在
     if (is_exist == -1)//如果不存在则新建文件夹
     {
-        mkdir("./result");
+        mkdir("./result");// if run in Windows, using <mkdir("./result");> instead of this line
     }
     else return;
 }
@@ -477,6 +477,22 @@ FILE *open_file(char *file_path)
 }
 
 
+//处理原始数据
+DataNode *compose_data(char *file_path, int *file_col, int *read_num)
+{
+    DataNode *data = NULL;
+    int line_num;
+    FILE *fp;
+    fp = open_file(file_path);
+    line_num = get_line_num(fp);//获得原始行数
+    data = (DataNode*)malloc(line_num*sizeof(DataNode));
+    printf("Reading %s\n", file_path);
+    *read_num = read_data(fp, data, file_col);//按照要求读取数据，并返回实际读取行数（排除空行）
+    printf("------------------Read over-------------------\n");
+    return data;
+}
+
+
 /*-------------------------------------------------快排和判断处理-c的区域重叠-------------------------------------------------*/
 
 
@@ -541,22 +557,6 @@ void cprint(DataNode *data, int read_num, FILE *AB, FILE *A_B)
         if ((data+index)->isoverlap) fputs((data+index)->data, AB);
         else fputs((data+index)->data, A_B);
     }
-}
-
-
-//处理原始数据
-DataNode *compose_data(char *file_path, int *file_col, int *read_num)
-{
-    DataNode *data = NULL;
-    int line_num;
-    FILE *fp;
-    fp = open_file(file_path);
-    line_num = get_line_num(fp);//获得原始行数
-    data = (DataNode*)malloc(line_num*sizeof(DataNode));
-    printf("Reading %s\n", file_path);
-    *read_num = read_data(fp, data, file_col);//按照要求读取数据，并返回实际读取行数（排除空行）
-    printf("------------------Read over-------------------\n");
-    return data;
 }
 
 
